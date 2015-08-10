@@ -34,10 +34,14 @@ def run(input=sys.stdin, output=sys.stdout):
 
     def _writejson(obj):
         obj = json.encode(obj)
-        if isinstance(obj, util.utype):
-            obj = obj.encode('utf-8')
-        output.write(obj)
-        output.write(b'\n')
+        if hasattr(output, 'encoding'):
+            output.write(obj)
+            output.write('\n')
+        else:
+            if isinstance(obj, util.utype):
+                obj = obj.encode('utf-8')
+            output.write(obj)
+            output.write(b'\n')
         output.flush()
 
     def _log(message):
