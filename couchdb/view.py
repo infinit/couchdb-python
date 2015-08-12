@@ -148,10 +148,17 @@ def run(input=sys.stdin, output=sys.stdout):
             ddoc = ddocs[cmd[0]]
             action = cmd[1]
             if action[0] == 'updates':
-                fun = ddoc['updates'][action[1]]
-                doc, body = fun(*cmd[2])
-                res = ['up', doc, body]
-                sys.stderr.flush()
+                if cmd[2][1]['method'] != 'POST':
+                    return [
+                        'up',
+                        None,
+                        {'status': 405, 'body': 'Method not allowed'},
+                    ]
+                else:
+                    fun = ddoc['updates'][action[1]]
+                    doc, body = fun(*cmd[2])
+                    res = ['up', doc, body]
+                    sys.stderr.flush()
                 return res
 
 
