@@ -102,6 +102,57 @@ class ViewServerTestCase(unittest.TestCase):
         self.assertEqual(output.getvalue(),
                          b'[true, [0]]\n')
 
+    def test_update(self):
+        import json
+        commands = [
+            [
+                'ddoc',
+                'new',
+                '_design/test_update',
+                {
+                    '_id': '_design/test_update',
+                    '_rev': '8-d7379de23a751dc2a19e5638a7bbc5cc',
+                    'language': 'python',
+                    'updates': {
+                        'inc': {
+                            'map': '''\
+def fun(obj, req):
+    if obj is not None:
+        obj['field'] += 1
+    return [obj, {"body": "."}]
+''',
+                        }
+                    }
+                },
+            ],
+            [
+                'ddoc',
+                '_design/test_update',
+                ['updates', 'inc'],
+                [None, {}]
+            ],
+            [
+                'ddoc',
+                '_design/test_update',
+                ['updates', 'inc'],
+                [{'field': 41, 'other_field': 'x'}, {}]
+            ],
+        ]
+        input = StringIO(b'\n'.join(json.dumps(c).encode('utf-8')
+                                    for c in commands))
+        output = StringIO()
+        view.run(input=input, output=output)
+        results = [
+            json.loads(l.decode('utf-8'))
+            for l in output.getvalue().strip().split(b'\n')
+        ]
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0], True)
+        self.assertEqual(results[1], ['up', None, {'body': '.'}])
+        self.assertEqual(
+            results[2],
+            ['up', {'field': 42, 'other_field': 'x'}, {'body': '.'}])
+
 
 def suite():
     suite = unittest.TestSuite()

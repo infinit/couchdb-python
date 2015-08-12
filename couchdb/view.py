@@ -23,6 +23,7 @@ __docformat__ = 'restructuredtext en'
 
 log = logging.getLogger('couchdb.view')
 
+ddocs = {}
 
 def run(input=sys.stdin, output=sys.stdout):
     r"""CouchDB view function handler implementation for Python.
@@ -135,8 +136,33 @@ def run(input=sys.stdin, output=sys.stdout):
         # Note: weird kwargs is for Python 2.5 compat
         return reduce(*cmd, **{'rereduce': True})
 
-    handlers = {'reset': reset, 'add_fun': add_fun, 'map_doc': map_doc,
-                'reduce': reduce, 'rereduce': rereduce}
+    def ddoc(*cmd):
+        if cmd[0] == 'new':
+            ddoc = cmd[2]
+            ddoc['updates'] = dict(
+                (name, {'map': compile_fun(value['map'])})
+                for name, value in ddoc['updates'].items())
+            ddocs[cmd[1]] = ddoc
+            return True
+        else:
+            ddoc = ddocs[cmd[0]]
+            action = cmd[1]
+            if action[0] == 'updates':
+                fun = ddoc['updates'][action[1]]['map']
+                doc, body = fun(*cmd[2])
+                res = ['up', doc, body]
+                sys.stderr.flush()
+                return res
+
+
+    handlers = {
+        'add_fun': add_fun,
+        'ddoc': ddoc,
+        'map_doc': map_doc,
+        'reduce': reduce,
+        'rereduce': rereduce,
+        'reset': reset,
+    }
 
     try:
         while True:
