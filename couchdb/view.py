@@ -53,7 +53,7 @@ def run(input=sys.stdin, output=sys.stdout):
         del functions[:]
         return True
 
-    def add_fun(string):
+    def compile_fun(string):
         string = BOM_UTF8 + string.encode('utf-8')
         globals_ = {}
         try:
@@ -73,7 +73,10 @@ def run(input=sys.stdin, output=sys.stdout):
         function = list(globals_.values())[0]
         if type(function) is not FunctionType:
             return err
-        functions.append(function)
+        return function
+
+    def add_fun(string):
+        functions.append(compile_fun(string))
         return True
 
     def map_doc(doc):
