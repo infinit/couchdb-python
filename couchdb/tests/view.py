@@ -114,14 +114,12 @@ class ViewServerTestCase(unittest.TestCase):
                     '_rev': '8-d7379de23a751dc2a19e5638a7bbc5cc',
                     'language': 'python',
                     'updates': {
-                        'inc': {
-                            'map': '''\
+                        'inc': '''\
 def fun(obj, req):
     if obj is not None:
         obj['field'] += 1
     return [obj, {"body": "."}]
 ''',
-                        }
                     }
                 },
             ],

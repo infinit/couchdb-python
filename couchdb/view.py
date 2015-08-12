@@ -140,7 +140,7 @@ def run(input=sys.stdin, output=sys.stdout):
         if cmd[0] == 'new':
             ddoc = cmd[2]
             ddoc['updates'] = dict(
-                (name, {'map': compile_fun(value['map'])})
+                (name, compile_fun(value))
                 for name, value in ddoc['updates'].items())
             ddocs[cmd[1]] = ddoc
             return True
@@ -148,7 +148,7 @@ def run(input=sys.stdin, output=sys.stdout):
             ddoc = ddocs[cmd[0]]
             action = cmd[1]
             if action[0] == 'updates':
-                fun = ddoc['updates'][action[1]]['map']
+                fun = ddoc['updates'][action[1]]
                 doc, body = fun(*cmd[2])
                 res = ['up', doc, body]
                 sys.stderr.flush()
