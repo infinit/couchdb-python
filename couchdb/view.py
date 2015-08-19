@@ -148,7 +148,7 @@ def run(input=sys.stdin, output=sys.stdout):
             ddoc = ddocs[cmd[0]]
             action = cmd[1]
             if action[0] == 'updates':
-                if cmd[2][1]['method'] != 'POST':
+                if cmd[2][1]['method'] not in ('POST', 'PUT'):
                     return [
                         'up',
                         None,
